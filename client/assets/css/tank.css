@@ -1,0 +1,102 @@
+.tanque {
+    position: absolute;
+    width: 50px;
+    /* transform-origin: center center; */
+    /* position: absolute; */
+    
+    /* height: 50px; */
+    /* z-index: 1; */
+}
+
+.tanque img {
+    width: 100%;
+    display: block;
+}
+
+/* hitbox menor e verde */
+.tanque .hitbox {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 26px;
+    height: 26px;
+    border: 2px solid green;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+.tiro {
+    position: absolute;
+    width: 8px;       /* tamanho da bala */
+    height: 8px;
+    border-radius: 50%;
+    background: red;  /* cor vermelha */
+    pointer-events: none;
+}
+
+
+.rastro {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: rgba(121, 13, 13, 0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: desaparecer 0.5s forwards;
+}
+
+.fumaca {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: rgba(50, 50, 50, 0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: sumir 1s forwards;
+}
+
+.explosao {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: orange;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: explodir 0.4s forwards;
+}
+
+#fimJogo {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 36px;
+    color: red;
+    display: none;
+}
+
+@keyframes sumir {
+    to {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+@keyframes desaparecer {
+    to {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+@keyframes explodir {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}

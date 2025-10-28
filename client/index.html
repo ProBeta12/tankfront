@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tank WebSocket</title>
+    <link rel="stylesheet" href="./assets/css/tank.css">
+    <!-- <link rel="stylesheet" href="/clientFinal/assets/css/zona.css"> -->
+    <style>
+
+        html, body {
+    overflow: hidden; /* remove rolagem horizontal e vertical */
+    margin: 0;
+    padding: 0;
+}
+
+    </style>
+</head>
+
+<body>
+    <div class="tanque" id="tanque" style="top:200px; left:200px;">
+        <img src="./assets/img/t1.png" alt="Tanque">
+        <div class="hitbox"></div>
+    </div>
+
+    <script type="module" src="socket.js"></script>
+<script type="module" src="movimentacao.js"></script>
+<!-- <script type="module" src="tiro.js"></script> -->
+
+</body>
+
+</html>

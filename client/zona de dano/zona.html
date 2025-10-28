@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zona Circular Vermelha</title>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background-color: #ff0000; /* fundo vermelho */
+  }
+
+  #zona {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 200vw; /* maior que a tela */
+    height: 200vw;
+    background-color: #ff0000; /* vermelho */
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  #centro {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%; /* começa grande, cobrindo tudo */
+    height: 100%;
+    background-color: #e0e0e0; /* cor do “mapa” visível */
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+</style>
+</head>
+<body>
+
+<div id="zona">
+  <div id="centro"></div>
+</div>
+
+<script>
+  const centro = document.getElementById('centro');
+  let size = 150; // tamanho inicial do círculo central em vw
+  const minSize = 0.1; // tamanho mínimo do círculo
+  const shrinkRate = 0.1; // velocidade de fechamento
+
+  function animarZona() {
+    if (size > minSize) {
+      size -= shrinkRate;
+      centro.style.width = size + 'vw';
+      centro.style.height = size + 'vw';
+    }
+    requestAnimationFrame(animarZona);
+  }
+
+  animarZona();
+</script>
+
+</body>
+</html>

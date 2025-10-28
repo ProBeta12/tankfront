@@ -1,0 +1,90 @@
+/* Menu overlay */
+#menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#menu img {
+    width: 200px;
+    margin-bottom: 20px;
+}
+
+#menu h1 {
+    color: #FFD700;
+    font-size: 48px;
+    margin-bottom: 10px;
+    font-family: sans-serif;
+}
+
+#menu h2 {
+    color: #fff;
+}
+
+#menu p {
+    color: #fff;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+#menu input {
+    padding: 10px;
+    font-size: 20px;
+    border-radius: 8px;
+    border: 2px solid #088185;
+    margin-bottom: 30px;
+    width: 250px;
+    text-align: center;
+}
+
+#menu button {
+    padding: 15px 40px;
+    font-size: 24px;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    background-color: #088185;
+    color: white;
+}
+
+#menu button:hover {
+    background-color: #06575a;
+}
+
+/* Procurar Oponentes */
+#procurarOponentes {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.2);
+    width: 300px;
+    height: 200px;
+    background-color: rgba(0,0,0,0.9);
+    color: #fff;
+    border: 2px solid #021859;
+    border-radius: 10px;
+    text-align: center;
+    padding: 20px;
+    z-index: 1100; /* maior que o menu */
+    box-shadow: 0 0 20px rgba(2, 24, 89, 0.8);
+    display: none; /* inicialmente escondido */
+}
+
+#listaOponentes {
+    margin-top: 20px;
+    overflow-y: auto;
+    max-height: 120px;
+}
+#tempoRestante {
+    font-size: 24px;
+    margin-top: 10px;
+    font-weight: bold;
+}

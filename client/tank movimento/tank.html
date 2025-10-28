@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tanque vs Inimigos Atiradores</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: #e0e0e0;
+    overflow: hidden;
+    position: relative;
+    font-family: sans-serif;
+  }
+
+  .tanque {
+    position: absolute;
+    width: 50px;
+    transform-origin: center center;
+  }
+
+  .tanque img {
+    width: 100%;
+    display: block;
+  }
+
+  /* hitbox menor e verde */
+  .tanque .hitbox {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 26px;
+    height: 26px;
+    border: 2px solid green;
+    box-sizing: border-box;
+    pointer-events: none;
+  }
+
+  .tiro {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .rastro {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: rgba(121, 13, 13, 0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: desaparecer 0.5s forwards;
+  }
+
+  .fumaca {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: rgba(50,50,50,0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: sumir 1s forwards;
+  }
+
+  .inimigo {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: blue;
+  }
+
+  .explosao {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: orange;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: explodir 0.4s forwards;
+  }
+
+  /* Barra de vida */
+  #vidaContainer {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 150px;
+    height: 20px;
+    background: #555;
+    border: 2px solid #222;
+    border-radius: 5px;
+  }
+
+  #vidaBarra {
+    width: 100%;
+    height: 100%;
+    background: green;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+
+  #fimJogo {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 36px;
+    color: red;
+    display: none;
+  }
+
+  @keyframes sumir { to { transform: scale(0); opacity: 0; } }
+  @keyframes desaparecer { to { transform: scale(0); opacity: 0; } }
+  @keyframes explodir { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<div id="vidaContainer">
+  <div id="vidaBarra"></div>
+</div>
+
+
+<div class="tanque" id="tanque" style="top:200px; left:200px;">
+  <img src="t1.png" alt="Tanque">
+  <div class="hitbox"></div>
+</div>
+<div id="fimJogo">GAME OVER</div>
+<div class="inimigo" id="inimigo" style="top:100px; left:400px;"></div>
+
+<script>
+const tanque = document.getElementById('tanque');
+const tanqueHitbox = tanque.querySelector('.hitbox'); // hitbox menor
+const inimigo = document.getElementById('inimigo');
+const fimJogoDiv = document.getElementById('fimJogo');
+let x = 200, y = 200;
+const speed = 2;
+let angle = 0;
+const teclas = {};
+let podeAtirar = true;
+const cooldown = 500;
+
+let vida = 3;
+const vidaMax = 3;
+let jogoAtivo = true;
+
+document.addEventListener('keydown', e => teclas[e.key] = true);
+document.addEventListener('keyup', e => teclas[e.key] = false);
+
+function criarFumaca() {
+  const tanqueRect = tanque.getBoundingClientRect();
+  const rad = angle * Math.PI / 180;
+  const offsetBase = 20;
+  for (let i = -1; i <= 1; i++) {
+    const fumaca = document.createElement('div');
+    fumaca.classList.add('fumaca');
+    const offsetLateral = i * 8;
+    const posX = tanqueRect.left + tanqueRect.width/2 + Math.sin(rad)*offsetBase + Math.cos(rad)*offsetLateral - 7.5;
+    const posY = tanqueRect.top + tanqueRect.height/2 - Math.cos(rad)*offsetBase + Math.sin(rad)*offsetLateral - 7.5;
+    fumaca.style.left = posX + 'px';
+    fumaca.style.top = posY + 'px';
+    document.body.appendChild(fumaca);
+    setTimeout(() => fumaca.remove(), 500);
+  }
+}
+
+function criarRastro(posX, posY) {
+  const rastro = document.createElement('div');
+  rastro.classList.add('rastro');
+  rastro.style.left = posX + 'px';
+  rastro.style.top = posY + 'px';
+  document.body.appendChild(rastro);
+  setTimeout(() => rastro.remove(), 500);
+}
+
+function criarExplosao(x, y) {
+  const explosao = document.createElement('div');
+  explosao.classList.add('explosao');
+  explosao.style.left = x - 20 + 'px';
+  explosao.style.top = y - 20 + 'px';
+  document.body.appendChild(explosao);
+  setTimeout(() => explosao.remove(), 400);
+}
+
+function colisao(rect1, rect2) {
+  return !(
+    rect1.right < rect2.left ||
+    rect1.left > rect2.right ||
+    rect1.bottom < rect2.top ||
+    rect1.top > rect2.bottom
+  );
+}
+
+function atualizarVida() {
+  const barra = document.getElementById('vidaBarra');
+  barra.style.width = (vida / vidaMax * 100) + '%'; // vida proporcional
+  if (vida <= 0 && jogoAtivo) {
+    jogoAtivo = false;
+    fimJogoDiv.style.display = 'block';
+    console.log("Game Over!");
+  }
+}
+
+function atirar() {
+  if (!jogoAtivo) return;
+
+  const bala = document.createElement('div');
+  bala.classList.add('tiro');
+  const tanqueRect = tanque.getBoundingClientRect();
+  const rad = angle * Math.PI / 180;
+  const offset = tanqueRect.height / 2;
+  let posX = tanqueRect.left + tanqueRect.width/2 - Math.sin(rad) * offset - 4;
+  let posY = tanqueRect.top + tanqueRect.height/2 + Math.cos(rad) * offset - 4;
+  bala.style.left = posX + 'px';
+  bala.style.top = posY + 'px';
+  document.body.appendChild(bala);
+
+  const velocidadeBala = 15;
+  const intervalo = setInterval(() => {
+    posX += velocidadeBala * Math.sin(rad) * -1;
+    posY += velocidadeBala * Math.cos(rad);
+    bala.style.left = posX + 'px';
+    bala.style.top = posY + 'px';
+    criarRastro(posX + 1, posY + 1);
+
+    if (inimigo) {
+      const balaRect = bala.getBoundingClientRect();
+      const inimigoRect = inimigo.getBoundingClientRect();
+      if (colisao(balaRect, inimigoRect)) {
+        criarExplosao(inimigoRect.left + 25, inimigoRect.top + 25);
+        bala.remove();
+        inimigo.remove();
+        clearInterval(intervalo);
+        console.log('Inimigo destruído!');
+        return;
+      }
+    }
+
+    if (posX < 0 || posX > window.innerWidth || posY < 0 || posY > window.innerHeight) {
+      bala.remove();
+      clearInterval(intervalo);
+    }
+  }, 20);
+}
+
+
+function inimigoAtira() {
+  if (!inimigo || !jogoAtivo) return;
+
+  const bala = document.createElement('div');
+  bala.classList.add('tiro');
+  const inimigoRect = inimigo.getBoundingClientRect();
+  let posX = inimigoRect.left + 25 - 4;
+  let posY = inimigoRect.top + 25 - 4;
+  bala.style.left = posX + 'px';
+  bala.style.top = posY + 'px';
+  document.body.appendChild(bala);
+
+  const tanqueRect = tanqueHitbox.getBoundingClientRect();
+  const dx = (tanqueRect.left + tanqueRect.width/2) - (posX + 4);
+  const dy = (tanqueRect.top + tanqueRect.height/2) - (posY + 4);
+  const ang = Math.atan2(dy, dx);
+  const velocidadeBala = 8;
+
+  const intervalo = setInterval(() => {
+    if (!jogoAtivo) { bala.remove(); clearInterval(intervalo); return; }
+    posX += Math.cos(ang) * velocidadeBala;
+    posY += Math.sin(ang) * velocidadeBala;
+    bala.style.left = posX + 'px';
+    bala.style.top = posY + 'px';
+    criarRastro(posX + 1, posY + 1);
+
+    const balaRect = bala.getBoundingClientRect();
+    const tanqueRectAtual = tanqueHitbox.getBoundingClientRect();
+    if (colisao(balaRect, tanqueRectAtual)) {
+      criarExplosao(tanqueRectAtual.left + 13, tanqueRectAtual.top + 13);
+      bala.remove();
+      clearInterval(intervalo);
+      vida--;
+      atualizarVida();
+      return;
+    }
+
+    if (posX < 0 || posX > window.innerWidth || posY < 0 || posY > window.innerHeight) {
+      bala.remove();
+      clearInterval(intervalo);
+    }
+  }, 20);
+}
+
+function atualizar() {
+  if (!jogoAtivo) return;
+
+  let movX = 0, movY = 0;
+  if(teclas['ArrowUp']) movY -= 1;
+  if(teclas['ArrowDown']) movY += 1;
+  if(teclas['ArrowLeft']) movX -= 1;
+  if(teclas['ArrowRight']) movX += 1;
+
+  if(movX !== 0 || movY !== 0){
+    angle = Math.atan2(-movX, movY) * 180 / Math.PI;
+    tanque.style.transform = `rotate(${angle}deg)`;
+    criarFumaca();
+  }
+
+  const norm = Math.sqrt(movX*movX + movY*movY);
+  if(norm !== 0){
+    x += speed * movX / norm;
+    y += speed * movY / norm;
+  }
+
+  const tanqueWidth = tanque.offsetWidth;
+  const tanqueHeight = tanque.offsetHeight;
+  x = Math.max(0, Math.min(window.innerWidth - tanqueWidth, x));
+  y = Math.max(0, Math.min(window.innerHeight - tanqueHeight, y));
+  tanque.style.left = x + 'px';
+  tanque.style.top = y + 'px';
+
+  if(teclas[' '] && podeAtirar){
+    atirar();
+    podeAtirar = false;
+    setTimeout(() => { podeAtirar = true; }, cooldown);
+  }
+
+  requestAnimationFrame(atualizar);
+}
+
+// Inimigo atira a cada 2s
+setInterval(inimigoAtira, 2000);
+
+atualizar();
+</script>
+</body>
+</html>
