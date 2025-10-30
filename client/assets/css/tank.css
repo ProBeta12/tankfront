@@ -25,78 +25,59 @@
     pointer-events: none;
 }
 
+/* === BALA PRINCIPAL (BRILHO QUENTE) === */
 .tiro {
     position: absolute;
-    width: 8px;       /* tamanho da bala */
+    width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: red;  /* cor vermelha */
-    pointer-events: none;
+    background: radial-gradient(circle at center, #ffcc00 0%, #ff6600 70%, #ff0000 100%);
+    box-shadow: 0 0 10px 3px rgba(255, 120, 0, 0.9);
+    transform: translate(-50%, -50%);
+    animation: brilhoTiro 0.4s ease-in-out infinite alternate;
+    z-index: 10;
 }
 
+/* === ANIMAÇÃO DE BRILHO PULSANTE === */
+@keyframes brilhoTiro {
+    0% { box-shadow: 0 0 8px 2px rgba(255, 180, 0, 0.8); }
+    100% { box-shadow: 0 0 14px 5px rgba(255, 80, 0, 1); }
+}
 
+/* === RASTRO INCANDESCENTE ATRÁS DA BALA === */
+
+
+/* === ANIMAÇÃO DO RASTRO DESVANECENDO === */
+@keyframes rastroDesvanecer {
+    0% { opacity: 1; transform: translateY(-50%) scaleX(1); }
+    100% { opacity: 0; transform: translateY(-50%) scaleX(0.3); }
+}
+
+/* === RASTRO DE FUMAÇA ESCURA (CRIADO VIA JS) === */
 .rastro {
     position: absolute;
     width: 6px;
     height: 6px;
-    background-color: rgba(121, 13, 13, 0.5);
+    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.8) 0%, transparent 70%);
     border-radius: 50%;
-    pointer-events: none;
-    animation: desaparecer 0.5s forwards;
-}
-
-.fumaca {
-    position: absolute;
-    width: 15px;
-    height: 15px;
-    background: rgba(50, 50, 50, 0.5);
-    border-radius: 50%;
-    pointer-events: none;
-    animation: sumir 1s forwards;
-}
-
-.explosao {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    background: orange;
-    border-radius: 50%;
-    pointer-events: none;
-    animation: explodir 0.4s forwards;
-}
-
-#fimJogo {
-    position: fixed;
-    top: 50%;
-    left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 36px;
-    color: red;
-    display: none;
+    opacity: 0.5;
+    filter: blur(2px);
+    animation: dissiparFumaca 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 5;
 }
 
-@keyframes sumir {
-    to {
-        transform: scale(0);
-        opacity: 0;
-    }
-}
-
-@keyframes desaparecer {
-    to {
-        transform: scale(0);
-        opacity: 0;
-    }
-}
-
-@keyframes explodir {
+/* === ANIMAÇÃO DA FUMAÇA DISSIPANDO === */
+@keyframes dissiparFumaca {
     0% {
-        transform: scale(0);
-        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.5;
     }
-
     100% {
-        transform: scale(2);
+        transform: translate(-50%, -50%) scale(2.5);
         opacity: 0;
     }
 }
+
+

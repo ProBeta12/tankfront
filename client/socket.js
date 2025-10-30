@@ -5,12 +5,10 @@ socket.addEventListener('open', () => {
     console.log('Conectado ao servidor WebSocket!');
 });
 
-
-
 socket.addEventListener('message', (event) => {
     const data = JSON.parse(event.data);
     console.log('Mensagem do servidor:', data);
 });
 
-// Disponibiliza o socket globalmente para outros scripts
-window.socket = socket;
+// Exporta o socket para outros módulos
+export default socket;
